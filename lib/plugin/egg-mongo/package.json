@@ -1,0 +1,7 @@
+{
+  "name": "egg-mongo",
+  "version": "1.0.0",
+  "eggPlugin": {
+    "name": "mongo"
+  }
+}

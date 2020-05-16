@@ -1,0 +1,59 @@
+{
+  "name": "oss-service",
+  "version": "0.0.1",
+  "description": "文件对象存储服务",
+  "private": true,
+  "egg": {
+    "declarations": true
+  },
+  "dependencies": {
+    "await-first": "^1.0.0",
+    "egg": "^2.15.1",
+    "egg-body-filter": "git+ssh://git@github.com/aegle-analytica/egg-body-filter.git",
+    "egg-http-error": "git+git@github.com:aegle-analytica/egg-http-error.git",
+    "egg-http-logger": "git+git@github.com:aegle-analytica/egg-http-logger.git",
+    "egg-scripts": "^2.11.0",
+    "mongodb": "^3.5.7"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "autod-egg": "^1.1.0",
+    "egg-bin": "^4.11.0",
+    "egg-ci": "^1.11.0",
+    "egg-mock": "^3.21.0",
+    "eslint": "^5.13.0",
+    "eslint-config-egg": "^7.1.0",
+    "husky": "^3.0.9"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "start": "egg-scripts start --title=egg-demo --sticky",
+    "stop": "egg-scripts stop --title=egg-demo",
+    "dev": "egg-bin dev --sticky",
+    "debug": "egg-bin debug",
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod",
+    "docker:build": "docker build -t egg-demo .",
+    "docker:run": "docker run -p 7001:7001 -d -name egg-demo egg-demo"
+  },
+  "ci": {
+    "version": "10"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run lint -- --fix"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "leon",
+  "license": "MIT"
+}

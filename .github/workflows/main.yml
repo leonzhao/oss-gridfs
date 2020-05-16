@@ -1,0 +1,64 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+env:
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  SSH_PRV_KEY: ${{ secrets.SSH_PRV_KEY }}
+  SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}
+  KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+
+jobs:
+  push:
+    name: build and push image
+    runs-on: ubuntu-18.04
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Image
+        run: docker build . --file Dockerfile --tag image --build-arg SSH_PRV_KEY --build-arg SSH_PUB_KEY
+
+      - name: Log into registry
+        # run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login $DOCKER_REGISTRY -u ${{ github.actor }} --password-stdin
+        run: echo $DOCKER_PASSWORD | docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME --password-stdin
+
+      - name: Push image
+        run: |
+          IMAGE_NAME=$(echo "${{ github.repository }}" | awk -F '/' '{print $2}')
+          IMAGE_ID=$DOCKER_REGISTRY/aegle/$IMAGE_NAME
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+
+          echo "tag image as $IMAGE_ID:$VERSION"
+          docker tag image $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+      - name: Setup kubectl command
+        run: |
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.17.0/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+      - name: Deploy to cluster 
+        run: |
+          IMAGE_NAME=$(echo "${{ github.repository }}" | awk -F '/' '{print $2}')
+          IMAGE_ID=$DOCKER_REGISTRY/aegle/$IMAGE_NAME
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > /tmp/config
+          export KUBECONFIG=/tmp/config
+          ./kubectl set image --record deployment/$IMAGE_NAME *=$IMAGE_ID:$VERSION -n aa-service
+          echo "Verify deployment"
+          ./kubectl rollout status deployment/$IMAGE_NAME -n aa-service 
