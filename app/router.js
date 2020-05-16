@@ -8,8 +8,7 @@ module.exports = app => {
 
   router.get('/health', controller.health.index);
 
-  // router.get('/check-items', controller.checkItem.list);
-  // router.get('/check-items/:id', controller.checkItem.get);
-  // router.post('/check-items/verify', controller.checkItem.verify);
-  router.get('/oss', controller.oss.index);
+  router.get('/oss', controller.oss.list);
+  router.post('/oss', controller.oss.upload);
+  router.get('/oss/:bucket/:filename', controller.oss.download);
 };

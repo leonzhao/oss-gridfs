@@ -12,8 +12,10 @@
     "egg-body-filter": "git+ssh://git@github.com/aegle-analytica/egg-body-filter.git",
     "egg-http-error": "git+git@github.com:aegle-analytica/egg-http-error.git",
     "egg-http-logger": "git+git@github.com:aegle-analytica/egg-http-logger.git",
+    "egg-multipart": "^2.10.3",
     "egg-scripts": "^2.11.0",
-    "mongodb": "^3.5.7"
+    "mongodb": "^3.5.7",
+    "mz-modules": "^2.1.0"
   },
   "devDependencies": {
     "autod": "^3.0.1",

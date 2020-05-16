@@ -34,6 +34,16 @@ module.exports = appInfo => {
     },
   };
 
+  // config/config.default.js
+  config.multipart = {
+    mode: 'stream',
+    fileSize: '50mb',
+    // will append to whilelist
+    fileExtensions: [
+      '.pdf',
+    ],
+  };
+
   return {
     ...config,
   };
